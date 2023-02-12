@@ -1,10 +1,12 @@
 /// Human-readable location in a source file.
-pub struct Location {
+pub struct FileLocation {
+    /// The line number.
     pub line: usize,
+    /// The column number.
     pub column: usize,
 }
 
-impl Location {
+impl FileLocation {
     /// Create a new `Location` from a source string and an index into
     /// the string.
     /// 

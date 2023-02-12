@@ -5,22 +5,28 @@ use std::str::CharIndices;
 
 use tokens::{Keyword, Literal, Operator, Separator, Token};
 
-/// A result from the lexer
+/// A result from the Lexer 
 pub type LexerResult<'i> = Result<LocatedToken<'i>, LocatedError<'i>>;
 
 /// A token with its location in the file
 #[derive(Debug)]
 pub struct LocatedToken<'i> {
+    /// The index of the beginning of the token
     pub begin: usize,
+    /// The index of the end of the token
     pub end: usize,
+    /// The token
     pub token: Token<'i>,
 }
 
 /// An error with its location in the file
 #[derive(Debug)]
 pub struct LocatedError<'i> {
+    /// The index of the beginning of the error
     pub begin: usize,
+    /// The index of the end of the error
     pub end: usize,
+    /// The error
     pub error: LexerError<'i>,
 }
 
@@ -103,6 +109,7 @@ impl<'i> Iterator for Lexer<'i> {
     /// # Returns
     /// If there is a next token, it will be returned. Otherwise, `None` will be returned.
     fn next(&mut self) -> Option<Self::Item> {
+        // None will be returned if there are no more characters to lex
         let (begin, c) = self.skip_whitespace()?;
 
         match c {
@@ -126,35 +133,40 @@ impl<'i> Iterator for Lexer<'i> {
                         end,
                         token: Token::Keyword(Keyword::Fn),
                     })),
-                    "if" => Some(Ok(LocatedToken {
-                        begin,
-                        end,
-                        token: Token::Keyword(Keyword::If),
-                    })),
-                    "for" => Some(Ok(LocatedToken {
-                        begin,
-                        end,
-                        token: Token::Keyword(Keyword::For),
-                    })),
                     "let" => Some(Ok(LocatedToken {
                         begin,
                         end,
                         token: Token::Keyword(Keyword::Let),
                     })),
-                    "else" => Some(Ok(LocatedToken {
+                    "if" => Some(Ok(LocatedToken {
                         begin,
                         end,
-                        token: Token::Keyword(Keyword::Else),
+                        token: Token::Keyword(Keyword::If),
                     })),
                     "match" => Some(Ok(LocatedToken {
                         begin,
                         end,
                         token: Token::Keyword(Keyword::Match),
                     })),
+                    "else" => Some(Ok(LocatedToken {
+                        begin,
+                        end,
+                        token: Token::Keyword(Keyword::Else),
+                    })),
                     "while" => Some(Ok(LocatedToken {
                         begin,
                         end,
                         token: Token::Keyword(Keyword::While),
+                    })),
+                    "for" => Some(Ok(LocatedToken {
+                        begin,
+                        end,
+                        token: Token::Keyword(Keyword::For),
+                    })),
+                    "loop" => Some(Ok(LocatedToken {
+                        begin,
+                        end,
+                        token : Token::Keyword(Keyword::Loop),
                     })),
 
                     // Boolean Literals
