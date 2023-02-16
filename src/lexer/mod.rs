@@ -5,34 +5,23 @@ use std::str::CharIndices;
 
 use tokens::{Keyword, Literal, Operator, Separator, Token};
 
-/// A result from the Lexer 
-pub type LexerResult<'i> = Result<LocatedToken<'i>, LocatedError<'i>>;
+/// A result from the Lexer, it is either a token or an error located in the input string 
+pub type Result<'i> = std::result::Result<Located<Token<'i>>, Located<Err<'i>>>;
 
-/// A token with its location in the file
+/// Some value with a location in the input string
 #[derive(Debug)]
-pub struct LocatedToken<'i> {
+pub struct Located<T> {
     /// The index of the beginning of the token
     pub begin: usize,
     /// The index of the end of the token
     pub end: usize,
-    /// The token
-    pub token: Token<'i>,
-}
-
-/// An error with its location in the file
-#[derive(Debug)]
-pub struct LocatedError<'i> {
-    /// The index of the beginning of the error
-    pub begin: usize,
-    /// The index of the end of the error
-    pub end: usize,
-    /// The error
-    pub error: LexerError<'i>,
+    /// The contained value 
+    pub value: T,
 }
 
 /// An error from the lexer
 #[derive(Debug)]
-pub enum LexerError<'i> {
+pub enum Err<'i> {
     UnexpectedCharacter(char),
     IntegerParseError(&'i str),
 }
@@ -102,7 +91,7 @@ impl<'i> Lexer<'i> {
 }
 
 impl<'i> Iterator for Lexer<'i> {
-    type Item = LexerResult<'i>;
+    type Item = Result<'i>;
 
     /// Returns the next token in the file
     ///
@@ -116,10 +105,10 @@ impl<'i> Iterator for Lexer<'i> {
             // Inlined Comments
             '#' => {
                 let end = self.consume_while(|c| c != '\r' && c != '\n');
-                Some(Ok(LocatedToken {
+                Some(Ok(Located {
                     begin,
                     end,
-                    token: Token::Comment(&self.input[begin..end]),
+                    value : Token::Comment(&self.input[begin..end]),
                 }))
             }
 
@@ -128,64 +117,64 @@ impl<'i> Iterator for Lexer<'i> {
                 let end = self.consume_while(|c| c.is_alphanumeric());
                 match &self.input[begin..end] {
                     // Keywords
-                    "fn" => Some(Ok(LocatedToken {
+                    "fn" => Some(Ok(Located {
                         begin,
                         end,
-                        token: Token::Keyword(Keyword::Fn),
+                        value: Token::Keyword(Keyword::Fn),
                     })),
-                    "let" => Some(Ok(LocatedToken {
+                    "let" => Some(Ok(Located {
                         begin,
                         end,
-                        token: Token::Keyword(Keyword::Let),
+                        value: Token::Keyword(Keyword::Let),
                     })),
-                    "if" => Some(Ok(LocatedToken {
+                    "if" => Some(Ok(Located {
                         begin,
                         end,
-                        token: Token::Keyword(Keyword::If),
+                        value: Token::Keyword(Keyword::If),
                     })),
-                    "match" => Some(Ok(LocatedToken {
+                    "match" => Some(Ok(Located {
                         begin,
                         end,
-                        token: Token::Keyword(Keyword::Match),
+                        value: Token::Keyword(Keyword::Match),
                     })),
-                    "else" => Some(Ok(LocatedToken {
+                    "else" => Some(Ok(Located {
                         begin,
                         end,
-                        token: Token::Keyword(Keyword::Else),
+                        value: Token::Keyword(Keyword::Else),
                     })),
-                    "while" => Some(Ok(LocatedToken {
+                    "while" => Some(Ok(Located {
                         begin,
                         end,
-                        token: Token::Keyword(Keyword::While),
+                        value: Token::Keyword(Keyword::While),
                     })),
-                    "for" => Some(Ok(LocatedToken {
+                    "for" => Some(Ok(Located {
                         begin,
                         end,
-                        token: Token::Keyword(Keyword::For),
+                        value: Token::Keyword(Keyword::For),
                     })),
-                    "loop" => Some(Ok(LocatedToken {
+                    "loop" => Some(Ok(Located {
                         begin,
                         end,
-                        token : Token::Keyword(Keyword::Loop),
+                        value: Token::Keyword(Keyword::Loop),
                     })),
 
                     // Boolean Literals
-                    "true" => Some(Ok(LocatedToken {
+                    "true" => Some(Ok(Located {
                         begin,
                         end,
-                        token: Token::Literal(Literal::Boolean(true)),
+                        value: Token::Literal(Literal::Boolean(true)),
                     })),
-                    "false" => Some(Ok(LocatedToken {
+                    "false" => Some(Ok(Located {
                         begin,
                         end,
-                        token: Token::Literal(Literal::Boolean(false)),
+                        value: Token::Literal(Literal::Boolean(false)),
                     })),
 
                     // Identifiers
-                    _ => Some(Ok(LocatedToken {
+                    _ => Some(Ok(Located {
                         begin,
                         end,
-                        token: Token::Identifier(&self.input[begin..end]),
+                        value: Token::Identifier(&self.input[begin..end]),
                     })),
                 }
             }
@@ -197,15 +186,15 @@ impl<'i> Iterator for Lexer<'i> {
                 let end = self.consume_while(|c| c.is_numeric());
                 let res = self.input[begin..end].parse::<i64>();
                 match res {
-                    Ok(num) => Some(Ok(LocatedToken {
+                    Ok(num) => Some(Ok(Located {
                         begin,
                         end,
-                        token: Token::Literal(Literal::Integer(num)),
+                        value: Token::Literal(Literal::Integer(num)),
                     })),
-                    Err(_) => Some(Err(LocatedError {
+                    Err(_) => Some(Err(Located {
                         begin,
                         end,
-                        error: LexerError::IntegerParseError(&self.input[begin..end]),
+                        value: Err::IntegerParseError(&self.input[begin..end]),
                     })),
                 }
             }
@@ -214,117 +203,117 @@ impl<'i> Iterator for Lexer<'i> {
             '"' => {
                 // TODO: Handle escape sequences
                 let end = self.consume_while(|c| c != '"');
-                Some(Ok(LocatedToken {
+                Some(Ok(Located {
                     begin,
                     end,
-                    token: Token::Literal(Literal::String(&self.input[begin + 1..end])),
+                    value: Token::Literal(Literal::String(&self.input[begin + 1..end])),
                 }))
             }
 
             // Separators
-            ',' => Some(Ok(LocatedToken {
+            ',' => Some(Ok(Located {
                 begin,
                 end: begin + 1,
-                token: Token::Separator(Separator::Comma),
+                value: Token::Separator(Separator::Comma),
             })),
-            ':' => Some(Ok(LocatedToken {
+            ':' => Some(Ok(Located {
                 begin,
                 end: begin + 1,
-                token: Token::Separator(Separator::Colon),
+                value: Token::Separator(Separator::Colon),
             })),
-            ';' => Some(Ok(LocatedToken {
+            ';' => Some(Ok(Located {
                 begin,
                 end: begin + 1,
-                token: Token::Separator(Separator::Semicolon),
+                value: Token::Separator(Separator::Semicolon),
             })),
-            '(' => Some(Ok(LocatedToken {
+            '(' => Some(Ok(Located {
                 begin,
                 end: begin + 1,
-                token: Token::Separator(Separator::LeftParen),
+                value: Token::Separator(Separator::LeftParen),
             })),
-            ')' => Some(Ok(LocatedToken {
+            ')' => Some(Ok(Located {
                 begin,
                 end: begin + 1,
-                token: Token::Separator(Separator::RightParen),
+                value: Token::Separator(Separator::RightParen),
             })),
-            '{' => Some(Ok(LocatedToken {
+            '{' => Some(Ok(Located {
                 begin,
                 end: begin + 1,
-                token: Token::Separator(Separator::LeftBrace),
+                value: Token::Separator(Separator::LeftBrace),
             })),
-            '}' => Some(Ok(LocatedToken {
+            '}' => Some(Ok(Located {
                 begin,
                 end: begin + 1,
-                token: Token::Separator(Separator::RightBrace),
+                value: Token::Separator(Separator::RightBrace),
             })),
 
             // Operators
-            '+' => Some(Ok(LocatedToken {
+            '+' => Some(Ok(Located {
                 begin,
                 end: begin + 1,
-                token: Token::Operator(Operator::Plus),
+                value: Token::Operator(Operator::Plus),
             })),
-            '-' => Some(Ok(LocatedToken {
+            '-' => Some(Ok(Located {
                 begin,
                 end: begin + 1,
-                token: Token::Operator(Operator::Minus),
+                value: Token::Operator(Operator::Minus),
             })),
-            '%' => Some(Ok(LocatedToken {
+            '%' => Some(Ok(Located {
                 begin,
                 end: begin + 1,
-                token: Token::Operator(Operator::Modulo),
+                value: Token::Operator(Operator::Modulo),
             })),
-            '=' => Some(Ok(LocatedToken {
+            '=' => Some(Ok(Located {
                 begin,
                 end: begin + 1,
-                token: Token::Operator(Operator::Equals),
+                value: Token::Operator(Operator::Equals),
             })),
-            '/' => Some(Ok(LocatedToken {
+            '/' => Some(Ok(Located {
                 begin,
                 end: begin + 1,
-                token: Token::Operator(Operator::Division),
+                value: Token::Operator(Operator::Division),
             })),
-            '<' => Some(Ok(LocatedToken {
+            '<' => Some(Ok(Located {
                 begin,
                 end: begin + 1,
-                token: Token::Operator(Operator::LessThan),
+                value: Token::Operator(Operator::LessThan),
             })),
-            '!' => Some(Ok(LocatedToken {
+            '!' => Some(Ok(Located {
                 begin,
                 end: begin + 1,
-                token: Token::Operator(Operator::BitwiseNot),
+                value: Token::Operator(Operator::BitwiseNot),
             })),
-            '|' => Some(Ok(LocatedToken {
+            '|' => Some(Ok(Located {
                 begin,
                 end: begin + 1,
-                token: Token::Operator(Operator::BitwiseOr),
+                value: Token::Operator(Operator::BitwiseOr),
             })),
-            '&' => Some(Ok(LocatedToken {
+            '&' => Some(Ok(Located {
                 begin,
                 end: begin + 1,
-                token: Token::Operator(Operator::BitwiseAnd),
+                value: Token::Operator(Operator::BitwiseAnd),
             })),
-            '^' => Some(Ok(LocatedToken {
+            '^' => Some(Ok(Located {
                 begin,
                 end: begin + 1,
-                token: Token::Operator(Operator::BitwiseXor),
+                value: Token::Operator(Operator::BitwiseXor),
             })),
-            '>' => Some(Ok(LocatedToken {
+            '>' => Some(Ok(Located {
                 begin,
                 end: begin + 1,
-                token: Token::Operator(Operator::GreaterThan),
+                value: Token::Operator(Operator::GreaterThan),
             })),
-            '*' => Some(Ok(LocatedToken {
+            '*' => Some(Ok(Located {
                 begin,
                 end: begin + 1,
-                token: Token::Operator(Operator::Multiplication),
+                value: Token::Operator(Operator::Multiplication),
             })),
 
             // Unexpected character
-            c => Some(Err(LocatedError {
+            c => Some(Err(Located {
                 begin,
                 end: begin + 1,
-                error: LexerError::UnexpectedCharacter(c),
+                value: Err::UnexpectedCharacter(c),
             })),
         }
     }

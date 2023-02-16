@@ -18,11 +18,12 @@ impl FileLocation {
     /// A new `Location` struct.
     pub fn new(source: &str, idx: usize) -> Self {
         let line = source[..idx].lines().count();
-        let column = match source[..idx].lines().last() {
-            None => 0,
-            Some(l) => l.len() + 1,
+        let column = match source[..idx].rfind(|c| {
+            c == '\n' || c == '\r'
+        }) {
+            None => 1,
+            Some(i) => idx - i,
         };
-
         Self { line, column }
     }
 }
