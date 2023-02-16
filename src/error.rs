@@ -9,18 +9,16 @@ pub struct FileLocation {
 impl FileLocation {
     /// Create a new `Location` from a source string and an index into
     /// the string.
-    /// 
+    ///
     /// # Arguments
     /// - `source`: The source string.
     /// - `idx`: The index into the source string.
-    /// 
+    ///
     /// # Returns
     /// A new `Location` struct.
     pub fn new(source: &str, idx: usize) -> Self {
         let line = source[..idx].lines().count();
-        let column = match source[..idx].rfind(|c| {
-            c == '\n' || c == '\r'
-        }) {
+        let column = match source[..idx].rfind('\n') {
             None => 1,
             Some(i) => idx - i,
         };
