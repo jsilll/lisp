@@ -1,6 +1,6 @@
 /// Tokens are the smallest unit of the language.
 /// They are the output of the lexer.
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum Token<'i> {
     /// A comment is a sequence of
     /// characters that is ignored by the compiler.
@@ -23,7 +23,7 @@ pub enum Token<'i> {
 
 /// A keyword is a sequence of characters
 /// that has a special meaning to the compiler.
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum Keyword {
     /// Used to declare a function.
     Fn,
@@ -45,14 +45,20 @@ pub enum Keyword {
 
 /// A literal is a sequence of characters
 /// that represents a compile-time constant.
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum Literal<'i> {
+    /// A float literal
     Float(f64),
+    /// A double 
     Double(f64),
+    /// An integer literal
     Integer(i64),
+    /// A boolean literal
     Boolean(bool),
-    
+
+    /// A character literal
     Char(char),
+    /// A string literal
     String(&'i str),
 }
 
@@ -60,45 +66,77 @@ pub enum Literal<'i> {
 /// of characters that represents an operation.
 #[derive(Debug, PartialEq, Eq, Hash)]
 pub enum Operator {
-    // Arithmetic
+    /// Assignment operator
+    Assignment,
+
+    /// Plus operator
     Plus,
+    /// Minus operatorj
     Minus,
+    /// Modulo operator
     Modulo,
+    /// Division operator
     Division,
+    /// Multiplication operator
     Multiplication,
 
-    // Logical
+    /// Equals operator
     Equals,
+    /// Not equals operator
     NotEquals,
 
+    /// Logical or operator
     LogicalOr,
+    /// Logical and operator
     LogicalAnd,
+    /// Logical not operator
     LogicalNot,
 
+    /// Less than operator
     LessThan,
+    /// Greater than operator
     GreaterThan,
+    /// Less than or equal to operator
     LessThanOrEqual,
+    /// Greater than or equal to operator
     GreaterThanOrEqual,
 
-    // Bitwise
+    /// Bitwise left shift operator
     BitwiseLeftShift,
+    /// Bitwise right shift operator
     BitwiseRightShift,
 
-    // Bitwise Logical
+    /// Bitwise or operator
     BitwiseOr,
+    /// Bitwise and operator
     BitwiseAnd,
+    /// Bitwise not operator
     BitwiseNot,
+    /// Bitwise xor operator
     BitwiseXor,
 }
 
 /// A separator is a token meant to delimit other tokens.
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum Separator {
+    /// A dot '.'
+    Dot,
+    /// A comma ','
     Comma,
+    /// A colon ':'
     Colon,
+    /// A semicolon ';'
     Semicolon,
+    /// A left parenthesis '('  
     LeftParen,
+    /// A right parenthesis ')'
     RightParen,
+    /// A left brace '{'
     LeftBrace,
+    /// A right brace '}'
     RightBrace,
+    /// A left bracket '['
+    LeftBracket,
+    /// A right bracket ']'
+    RightBracket,
 }

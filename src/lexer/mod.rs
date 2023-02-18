@@ -9,7 +9,7 @@ use tokens::{Keyword, Literal, Operator, Separator, Token};
 pub type Result<'i> = std::result::Result<Located<Token<'i>>, Located<Err<'i>>>;
 
 /// Some value with a location in the input string
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct Located<T> {
     /// The index of the beginning of the token
     pub begin: usize,
@@ -20,9 +20,11 @@ pub struct Located<T> {
 }
 
 /// An error from the lexer
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum Err<'i> {
+    /// An unexpected character was encountered by the lexer
     UnexpectedCharacter(char),
+    /// An invalid integer literal was encountered by the lexer
     IntegerParseError(&'i str),
 }
 
@@ -33,6 +35,7 @@ pub enum Err<'i> {
 /// use lang::lexer::Lexer;
 ///
 /// let lexer = Lexer::new("# This is a comment\n # This is another comment\n");
+///
 /// for token in lexer {
 ///    println!("{:?}", token);
 /// }
@@ -49,6 +52,16 @@ impl<'i> Lexer<'i> {
     ///
     /// # Arguments
     /// * `input` - The input string
+    /// 
+    /// # Returns
+    /// A new lexer
+    /// 
+    /// # Examples
+    /// ```
+    /// use lang::lexer::Lexer;
+    /// 
+    /// let lexer = Lexer::new("fn main() {}");
+    /// ```
     pub fn new(input: &'i str) -> Self {
         Self {
             input,
@@ -65,8 +78,8 @@ impl<'i> Lexer<'i> {
         loop {
             match self.chars.next() {
                 Some((_, c)) if c.is_whitespace() => continue,
-                Some((idx, c)) => return Some((idx, c)),
                 None => return None,
+                Some((idx, c)) => return Some((idx, c)),
             }
         }
     }
@@ -91,12 +104,34 @@ impl<'i> Lexer<'i> {
 }
 
 impl<'i> Iterator for Lexer<'i> {
+    /// The type of the items returned by the iterator
     type Item = Result<'i>;
 
     /// Returns the next token in the file
     ///
     /// # Returns
     /// If there is a next token, it will be returned. Otherwise, `None` will be returned.
+    /// 
+    /// # Examples
+    /// ```
+    /// use lang::lexer::Lexer;
+    /// 
+    /// let lexer = Lexer::new("fn main() {}");
+    /// 
+    /// for token in lexer {
+    ///    println!("{:?}", token);
+    /// }
+    ///
+    /// let mut lexer = Lexer::new("fn main() {}");
+    /// 
+    /// assert(lexer.next().is_some());
+    /// assert(lexer.next().is_some());
+    /// assert(lexer.next().is_some());
+    /// assert(lexer.next().is_some());
+    /// assert(lexer.next().is_some());
+    /// assert(lexer.next().is_some());
+    /// assert(lexer.next().is_none());
+    /// ```
     fn next(&mut self) -> Option<Self::Item> {
         // None will be returned if there are no more characters to lex
         let (begin, c) = self.skip_whitespace()?;
@@ -104,7 +139,7 @@ impl<'i> Iterator for Lexer<'i> {
         match c {
             // Inlined Comments
             '#' => {
-                let end = self.consume_while(|c| c != '\r' && c != '\n');
+                let end = self.consume_while(|c| c != '\n');
                 Some(Ok(Located {
                     begin,
                     end,
@@ -205,7 +240,7 @@ impl<'i> Iterator for Lexer<'i> {
                 let end = self.consume_while(|c| c != '"');
                 Some(Ok(Located {
                     begin,
-                    end,
+                    end : end + 1,
                     value: Token::Literal(Literal::String(&self.input[begin + 1..end])),
                 }))
             }
@@ -247,7 +282,32 @@ impl<'i> Iterator for Lexer<'i> {
                 value: Token::Separator(Separator::RightBrace),
             })),
 
-            // Operators
+            // Equals and Assignment
+            '=' => {
+                let end = self.consume_while(|c| c == '=');
+                if end == begin + 1 {
+                    Some(Ok(Located {
+                        begin,
+                        end: begin + 1,
+                        value: Token::Operator(Operator::Assignment),
+                    }))
+                } else if end == begin + 2 {
+                    Some(Ok(Located {
+                        begin,
+                        end,
+                        value: Token::Operator(Operator::Equals),
+                    }))
+                } else {
+                    let c = self.input.chars().nth(end - 1).unwrap_or(' ');
+                    Some(Err(Located {
+                        begin,
+                        end,
+                        value: Err::UnexpectedCharacter(c),
+                    }))
+                }
+            }
+
+            // Rest of Operators
             '+' => Some(Ok(Located {
                 begin,
                 end: begin + 1,
@@ -262,11 +322,6 @@ impl<'i> Iterator for Lexer<'i> {
                 begin,
                 end: begin + 1,
                 value: Token::Operator(Operator::Modulo),
-            })),
-            '=' => Some(Ok(Located {
-                begin,
-                end: begin + 1,
-                value: Token::Operator(Operator::Equals),
             })),
             '/' => Some(Ok(Located {
                 begin,
@@ -316,5 +371,111 @@ impl<'i> Iterator for Lexer<'i> {
                 value: Err::UnexpectedCharacter(c),
             })),
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// Test the next() method of the Lexer
+    /// This test is not exhaustive, but it should some important cases 
+    #[test]
+    fn test_next() {
+        let mut lexer = Lexer::new("let x = 5;");
+
+        assert_eq!(
+            lexer.next(),
+            Some(Ok(Located {
+                begin: 0,
+                end: 3,
+                value: Token::Keyword(Keyword::Let),
+            }))
+        );
+
+        assert_eq!(
+            lexer.next(),
+            Some(Ok(Located {
+                begin: 4,
+                end: 5,
+                value: Token::Identifier("x"),
+            }))
+        );
+
+        assert_eq!(
+            lexer.next(),
+            Some(Ok(Located {
+                begin: 6,
+                end: 7,
+                value: Token::Operator(Operator::Assignment),
+            }))
+        );
+
+        assert_eq!(
+            lexer.next(),
+            Some(Ok(Located {
+                begin: 8,
+                end: 9,
+                value: Token::Literal(Literal::Integer(5)),
+            }))
+        );
+
+        assert_eq!(
+            lexer.next(),
+            Some(Ok(Located {
+                begin: 9,
+                end: 10,
+                value: Token::Separator(Separator::Semicolon),
+            }))
+        );
+
+        let mut lexer = Lexer::new("x == 5;");
+
+        assert_eq!(
+            lexer.next(),
+            Some(Ok(Located {
+                begin: 0,
+                end: 1,
+                value: Token::Identifier("x"),
+            }))
+        ); 
+
+        assert_eq!(
+            lexer.next(),
+            Some(Ok(Located {
+                begin: 2,
+                end: 4,
+                value: Token::Operator(Operator::Equals),
+            }))
+        );
+
+        assert_eq!(
+            lexer.next(),
+            Some(Ok(Located {
+                begin: 5,
+                end: 6,
+                value: Token::Literal(Literal::Integer(5)),
+            }))
+        );
+
+        assert_eq!(
+            lexer.next(),
+            Some(Ok(Located {
+                begin: 6,
+                end: 7,
+                value: Token::Separator(Separator::Semicolon),
+            }))
+        );
+
+        let mut lexer = Lexer::new("\"x = 5;\"");
+
+        assert_eq!(
+            lexer.next(),
+            Some(Ok(Located {
+                begin: 0,
+                end: 8,
+                value: Token::Literal(Literal::String("x = 5;")),
+            }))
+        );
     }
 }

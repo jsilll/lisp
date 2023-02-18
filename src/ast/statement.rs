@@ -14,7 +14,9 @@ pub struct StatementBody<'i> {
 #[derive(Debug)]
 pub enum Statement<'i> {
     /// A statement that declares a variable.
+    #[allow(dead_code)]
     Assignment(StatementBody<'i>),
     /// A statement that declares a function.
+    #[allow(dead_code)]
     Definition(StatementBody<'i>),
 }

@@ -7,25 +7,31 @@ extern crate lalrpop_util;
 
 use lang::lexer::Lexer;
 // use lang::parser::ExprParser;
-use lang::error::FileLocation;
+use lang::location::FileLocation;
 
 fn main() {
+    // TODO: Implement Parser 
     // let input = "22 * pi + 66";
     // let lexer = Lexer::new(input);
     // let expr = ExprParser::new().parse(input, lexer).unwrap();
     // println!("{:?}", expr);
 
-    let source = std::fs::read_to_string("tests/sources/fib.l").unwrap();
+    let path = "tests/sources/fib.l";
+    let source = std::fs::read_to_string(path).unwrap_or_else(|err| {
+        panic!("Failed to read file {}: {}", path, err);
+    });
+
     let lexer = Lexer::new(&source);
+
     for token in lexer {
         match token {
             Err(err) => {
-                let loc = FileLocation::new(&source, err.begin);
-                println!("{}:{} {:?}", loc.line, loc.column, err.value);
+                let loc = FileLocation::new(path, &source, err.begin);
+                println!("{}: {:?}", loc, err);
             }
             Ok(token) => {
-                let loc = FileLocation::new(&source, token.begin);
-                println!("{}:{} {:?}", loc.line, loc.column, token.value)
+                let loc = FileLocation::new(path, &source, token.begin);
+                println!("{}: {:?}", loc, token);
             }
         }
     }
