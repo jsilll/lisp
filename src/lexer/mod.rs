@@ -124,13 +124,13 @@ impl<'i> Iterator for Lexer<'i> {
     ///
     /// let mut lexer = Lexer::new("fn main() {}");
     /// 
-    /// assert(lexer.next().is_some());
-    /// assert(lexer.next().is_some());
-    /// assert(lexer.next().is_some());
-    /// assert(lexer.next().is_some());
-    /// assert(lexer.next().is_some());
-    /// assert(lexer.next().is_some());
-    /// assert(lexer.next().is_none());
+    /// assert!(lexer.next().is_some());
+    /// assert!(lexer.next().is_some());
+    /// assert!(lexer.next().is_some());
+    /// assert!(lexer.next().is_some());
+    /// assert!(lexer.next().is_some());
+    /// assert!(lexer.next().is_some());
+    /// assert!(lexer.next().is_none());
     /// ```
     fn next(&mut self) -> Option<Self::Item> {
         // None will be returned if there are no more characters to lex
