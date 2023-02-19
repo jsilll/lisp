@@ -4,14 +4,14 @@ use std::fmt;
 ///
 /// # Example
 /// ```
-/// use lang::location::FileLocation;
+/// use lang::display::Location;
 ///
-/// let loc = FileLocation::new("path", "1 + 2", 3);
+/// let loc = Location::new("path", "1 + 2", 3);
 /// assert_eq!(loc.path, "path");
 /// assert_eq!(loc.line, 1);
 /// assert_eq!(loc.column, 4);
 /// ```
-pub struct FileLocation<'i> {
+pub struct Location<'i> {
     /// The file path.
     pub path: &'i str,
     /// The line number.
@@ -20,7 +20,7 @@ pub struct FileLocation<'i> {
     pub column: usize,
 }
 
-impl<'i> FileLocation<'i> {
+impl<'i> Location<'i> {
     /// Create a new `Location` from a source string and an index into
     /// the string.
     ///
@@ -34,9 +34,9 @@ impl<'i> FileLocation<'i> {
     ///
     /// # Example
     /// ```
-    /// use lang::location::FileLocation;
+    /// use lang::display::Location;
     ///
-    /// let loc = FileLocation::new("path", "1 + 2", 3);
+    /// let loc = Location::new("path", "1 + 2", 3);
     /// assert_eq!(loc.path, "path");
     /// assert_eq!(loc.line, 1);
     /// assert_eq!(loc.column, 4);
@@ -52,18 +52,18 @@ impl<'i> FileLocation<'i> {
     }
 }
 
-impl fmt::Display for FileLocation<'_> {
+impl fmt::Display for Location<'_> {
     /// Display the location in a human-readable format.
     /// Additionally, the location is printed in a format that can be interpreted by an IDE.
     ///
     /// # Example
     /// ```
-    /// use lang::location::FileLocation;
+    /// use lang::display::Location;
     ///
-    /// let loc = FileLocation::new("path", "1 + 2", 3);
+    /// let loc = Location::new("path", "1 + 2", 3);
     /// assert_eq!(loc.to_string(), "path:1:4");
     ///
-    /// let loc = FileLocation::new("path", "1 + 2\n3 + 4", 7);
+    /// let loc = Location::new("path", "1 + 2\n3 + 4", 7);
     /// assert_eq!(loc.to_string(), "path:2:2");
     /// ```
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -78,57 +78,57 @@ mod tests {
     /// Test the `Location` struct.
     #[test]
     fn test_location() {
-        let loc = FileLocation::new("path", "1 + 2", 3);
+        let loc = Location::new("path", "1 + 2", 3);
         assert_eq!(loc.path, "path");
         assert_eq!(loc.line, 1);
         assert_eq!(loc.column, 4);
 
-        let loc = FileLocation::new("path", "1 + 2", 0);
+        let loc = Location::new("path", "1 + 2", 0);
         assert_eq!(loc.path, "path");
         assert_eq!(loc.line, 1);
         assert_eq!(loc.column, 1);
 
-        let loc = FileLocation::new("path", "1 + 2", 5);
+        let loc = Location::new("path", "1 + 2", 5);
         assert_eq!(loc.path, "path");
         assert_eq!(loc.line, 1);
         assert_eq!(loc.column, 6);
 
-        let loc = FileLocation::new("path", "1 + 2\n3 + 4", 5);
+        let loc = Location::new("path", "1 + 2\n3 + 4", 5);
         assert_eq!(loc.path, "path");
         assert_eq!(loc.line, 1);
         assert_eq!(loc.column, 6);
 
-        let loc = FileLocation::new("path", "1 + 2\n3 + 4", 6);
+        let loc = Location::new("path", "1 + 2\n3 + 4", 6);
         assert_eq!(loc.path, "path");
         assert_eq!(loc.line, 2);
         assert_eq!(loc.column, 1);
 
-        let loc = FileLocation::new("path", "1 + 2\n3 + 4", 7);
+        let loc = Location::new("path", "1 + 2\n3 + 4", 7);
         assert_eq!(loc.path, "path");
         assert_eq!(loc.line, 2);
         assert_eq!(loc.column, 2);
 
-        let loc = FileLocation::new("path", "1 + 2\n3 + 4", 8);
+        let loc = Location::new("path", "1 + 2\n3 + 4", 8);
         assert_eq!(loc.path, "path");
         assert_eq!(loc.line, 2);
         assert_eq!(loc.column, 3);
 
-        let loc = FileLocation::new("path", "1 + 2\n3 + 4", 9);
+        let loc = Location::new("path", "1 + 2\n3 + 4", 9);
         assert_eq!(loc.path, "path");
         assert_eq!(loc.line, 2);
         assert_eq!(loc.column, 4);
 
-        let loc = FileLocation::new("path", "1 + 2\n3 + 4", 10);
+        let loc = Location::new("path", "1 + 2\n3 + 4", 10);
         assert_eq!(loc.path, "path");
         assert_eq!(loc.line, 2);
         assert_eq!(loc.column, 5);
 
-        let loc = FileLocation::new("path", "1 + 2\n3 + 4", 11);
+        let loc = Location::new("path", "1 + 2\n3 + 4", 11);
         assert_eq!(loc.path, "path");
         assert_eq!(loc.line, 2);
         assert_eq!(loc.column, 6);
 
-        let loc = FileLocation::new("path", "1 + 2\n3 + 4", 12);
+        let loc = Location::new("path", "1 + 2\n3 + 4", 12);
         assert_eq!(loc.path, "path");
         assert_eq!(loc.line, 2);
         assert_eq!(loc.column, 6);
@@ -138,13 +138,13 @@ mod tests {
     /// This is a simple test to make sure the display format is correct such that it can be used by IDEs.
     #[test]
     fn test_location_display() {
-        let loc = FileLocation::new("path", "1 + 2", 3);
+        let loc = Location::new("path", "1 + 2", 3);
         assert_eq!(loc.to_string(), "path:1:4");
 
-        let loc = FileLocation::new("path", "1 + 2\n3 + 4", 6);
+        let loc = Location::new("path", "1 + 2\n3 + 4", 6);
         assert_eq!(loc.to_string(), "path:2:1");
 
-        let loc = FileLocation::new("path/to/file", "1 + 2\n3 + 4", 7);
+        let loc = Location::new("path/to/file", "1 + 2\n3 + 4", 7);
         assert_eq!(loc.to_string(), "path/to/file:2:2");
     }
 }
