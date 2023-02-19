@@ -1,9 +1,8 @@
-pub mod tokens;
-
 use std::iter::Peekable;
 use std::str::CharIndices;
 
-use tokens::{Keyword, Literal, Operator, Separator, Token};
+/// The tokens that can be recognized by the Lexer
+use crate::tokens::{Keyword, Literal, Operator, Separator, Token};
 
 /// A result from the Lexer, it is either a token or an error located in the input string 
 pub type Result<'i> = std::result::Result<Located<Token<'i>>, Located<Err<'i>>>;
@@ -415,7 +414,7 @@ mod tests {
     use super::*;
 
     /// Test the next() method of the Lexer
-    /// This test is not exhaustive, but it should some important cases 
+    /// This test is not exhaustive, but it should cover some important cases 
     #[test]
     fn test_next() {
         let mut lexer = Lexer::new("let x = 5;");
