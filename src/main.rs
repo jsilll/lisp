@@ -25,13 +25,15 @@ fn main() {
 
     for token in lexer {
         match token {
-            Err(err) => {
-                let loc = FileLocation::new(path, &source, err.begin);
-                println!("{}: {:?}", loc, err);
-            }
             Ok(token) => {
                 let loc = FileLocation::new(path, &source, token.begin);
-                println!("{}: {:?}", loc, token);
+                let token = token.value;
+                println!("{:?} at {}", token, loc);
+            },
+            Err(err) => {
+                let loc = FileLocation::new(path, &source, err.begin);
+                let err = err.value;
+                println!("{:?} at {}", err, loc);
             }
         }
     }

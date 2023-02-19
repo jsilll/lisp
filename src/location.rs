@@ -42,12 +42,11 @@ impl<'i> FileLocation<'i> {
     /// assert_eq!(loc.column, 4);
     /// ```
     pub fn new(path: &'i str, source: &str, idx: usize) -> Self {
-        let line_idx = std::cmp::min(idx + 1, source.len());
-        let column_idx = std::cmp::min(idx, source.len());
-        let line = source[..line_idx].lines().count();
-        let column = match source[..column_idx].rfind('\n') {
-            None => column_idx + 1,
-            Some(i) => column_idx - i,
+        let idx = std::cmp::min(idx, source.len());
+        let line = source[..std::cmp::min(idx + 1, source.len())].lines().count();
+        let column = match source[..idx].rfind('\n') {
+            None => idx + 1,
+            Some(i) => idx - i,
         };
         Self { path, line, column }
     }
@@ -144,5 +143,8 @@ mod tests {
 
         let loc = FileLocation::new("path", "1 + 2\n3 + 4", 6);
         assert_eq!(loc.to_string(), "path:2:1");
+
+        let loc = FileLocation::new("path/to/file", "1 + 2\n3 + 4", 7);
+        assert_eq!(loc.to_string(), "path/to/file:2:2");
     }
 }

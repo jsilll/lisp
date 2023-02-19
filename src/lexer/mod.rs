@@ -147,7 +147,7 @@ impl<'i> Iterator for Lexer<'i> {
                 }))
             }
 
-            // Identifiers, Keywords and Boolean Literals
+            // Keywords, Boolean Literals and Identifiers 
             'a'..='z' | 'A'..='Z' | '_' => {
                 let end = self.consume_while(|c| c.is_alphanumeric());
                 match &self.input[begin..end] {
@@ -167,15 +167,15 @@ impl<'i> Iterator for Lexer<'i> {
                         end,
                         value: Token::Keyword(Keyword::If),
                     })),
-                    "match" => Some(Ok(Located {
-                        begin,
-                        end,
-                        value: Token::Keyword(Keyword::Match),
-                    })),
                     "else" => Some(Ok(Located {
                         begin,
                         end,
                         value: Token::Keyword(Keyword::Else),
+                    })),
+                    "match" => Some(Ok(Located {
+                        begin,
+                        end,
+                        value: Token::Keyword(Keyword::Match),
                     })),
                     "while" => Some(Ok(Located {
                         begin,
@@ -214,10 +214,12 @@ impl<'i> Iterator for Lexer<'i> {
                 }
             }
 
+            // TODO: Float Literals
+
+            // TODO: Double Literals
+
             // Integer Literals
             '0'..='9' => {
-                // TODO: Handle errors
-                // TODO: Handle floating point numbers
                 let end = self.consume_while(|c| c.is_numeric());
                 let res = self.input[begin..end].parse::<i64>();
                 match res {
@@ -234,6 +236,8 @@ impl<'i> Iterator for Lexer<'i> {
                 }
             }
 
+            // TODO: Char Literals
+
             // String Literals
             '"' => {
                 // TODO: Handle escape sequences
@@ -245,7 +249,111 @@ impl<'i> Iterator for Lexer<'i> {
                 }))
             }
 
+            // Equals and Assignment
+            '=' => {
+                let end = self.consume_while(|c| c == '=');
+                if end == begin + 1 {
+                    Some(Ok(Located {
+                        begin,
+                        end: begin + 1,
+                        value: Token::Operator(Operator::Assignment),
+                    }))
+                } else if end == begin + 2 {
+                    Some(Ok(Located {
+                        begin,
+                        end,
+                        value: Token::Operator(Operator::Equals),
+                    }))
+                } else {
+                    let c = self.input.chars().nth(end - 1).unwrap_or(' ');
+                    Some(Err(Located {
+                        begin,
+                        end,
+                        value: Err::UnexpectedCharacter(c),
+                    }))
+                }
+            }
+
+            // TODO: Not Equals
+            '!' => Some(Ok(Located {
+                begin,
+                end: begin + 1,
+                value: Token::Operator(Operator::LogicalNot),
+            })),
+
+            // TODO: Logical Or
+            '|' => Some(Ok(Located {
+                begin,
+                end: begin + 1,
+                value: Token::Operator(Operator::BitwiseOr),
+            })),
+
+            // TODO: Logical And
+            '&' => Some(Ok(Located {
+                begin,
+                end: begin + 1,
+                value: Token::Operator(Operator::BitwiseAnd),
+            })),
+
+            // TODO: Less Than or Equal
+            // TODO: Bitwise Left Shift
+            '<' => Some(Ok(Located {
+                begin,
+                end: begin + 1,
+                value: Token::Operator(Operator::LessThan),
+            })),
+
+            // TODO: Greater Than or Equal
+            // TODO: Bitwise Right Shift
+            '>' => Some(Ok(Located {
+                begin,
+                end: begin + 1,
+                value: Token::Operator(Operator::GreaterThan),
+            })),
+
+            // Rest of Operators
+            '+' => Some(Ok(Located {
+                begin,
+                end: begin + 1,
+                value: Token::Operator(Operator::Plus),
+            })),
+            '-' => Some(Ok(Located {
+                begin,
+                end: begin + 1,
+                value: Token::Operator(Operator::Minus),
+            })),
+            '%' => Some(Ok(Located {
+                begin,
+                end: begin + 1,
+                value: Token::Operator(Operator::Modulo),
+            })),
+            '/' => Some(Ok(Located {
+                begin,
+                end: begin + 1,
+                value: Token::Operator(Operator::Division),
+            })),
+            '*' => Some(Ok(Located {
+                begin,
+                end: begin + 1,
+                value: Token::Operator(Operator::Multiplication),
+            })),
+            '~' => Some(Ok(Located {
+                begin,
+                end: begin + 1,
+                value: Token::Operator(Operator::BitwiseNot),
+            })),
+            '^' => Some(Ok(Located {
+                begin,
+                end: begin + 1,
+                value: Token::Operator(Operator::BitwiseXor),
+            })),
+
             // Separators
+            '.' => Some(Ok(Located {
+                begin,
+                end: begin + 1,
+                value: Token::Separator(Separator::Dot),
+            })),
             ',' => Some(Ok(Located {
                 begin,
                 end: begin + 1,
@@ -281,87 +389,15 @@ impl<'i> Iterator for Lexer<'i> {
                 end: begin + 1,
                 value: Token::Separator(Separator::RightBrace),
             })),
-
-            // Equals and Assignment
-            '=' => {
-                let end = self.consume_while(|c| c == '=');
-                if end == begin + 1 {
-                    Some(Ok(Located {
-                        begin,
-                        end: begin + 1,
-                        value: Token::Operator(Operator::Assignment),
-                    }))
-                } else if end == begin + 2 {
-                    Some(Ok(Located {
-                        begin,
-                        end,
-                        value: Token::Operator(Operator::Equals),
-                    }))
-                } else {
-                    let c = self.input.chars().nth(end - 1).unwrap_or(' ');
-                    Some(Err(Located {
-                        begin,
-                        end,
-                        value: Err::UnexpectedCharacter(c),
-                    }))
-                }
-            }
-
-            // Rest of Operators
-            '+' => Some(Ok(Located {
+            '[' => Some(Ok(Located {
                 begin,
                 end: begin + 1,
-                value: Token::Operator(Operator::Plus),
+                value: Token::Separator(Separator::LeftBracket),
             })),
-            '-' => Some(Ok(Located {
+            ']' => Some(Ok(Located {
                 begin,
                 end: begin + 1,
-                value: Token::Operator(Operator::Minus),
-            })),
-            '%' => Some(Ok(Located {
-                begin,
-                end: begin + 1,
-                value: Token::Operator(Operator::Modulo),
-            })),
-            '/' => Some(Ok(Located {
-                begin,
-                end: begin + 1,
-                value: Token::Operator(Operator::Division),
-            })),
-            '<' => Some(Ok(Located {
-                begin,
-                end: begin + 1,
-                value: Token::Operator(Operator::LessThan),
-            })),
-            '!' => Some(Ok(Located {
-                begin,
-                end: begin + 1,
-                value: Token::Operator(Operator::BitwiseNot),
-            })),
-            '|' => Some(Ok(Located {
-                begin,
-                end: begin + 1,
-                value: Token::Operator(Operator::BitwiseOr),
-            })),
-            '&' => Some(Ok(Located {
-                begin,
-                end: begin + 1,
-                value: Token::Operator(Operator::BitwiseAnd),
-            })),
-            '^' => Some(Ok(Located {
-                begin,
-                end: begin + 1,
-                value: Token::Operator(Operator::BitwiseXor),
-            })),
-            '>' => Some(Ok(Located {
-                begin,
-                end: begin + 1,
-                value: Token::Operator(Operator::GreaterThan),
-            })),
-            '*' => Some(Ok(Located {
-                begin,
-                end: begin + 1,
-                value: Token::Operator(Operator::Multiplication),
+                value: Token::Separator(Separator::RightBracket),
             })),
 
             // Unexpected character

@@ -55,7 +55,6 @@ pub enum Literal<'i> {
     Integer(i64),
     /// A boolean literal
     Boolean(bool),
-
     /// A character literal
     Char(char),
     /// A string literal
