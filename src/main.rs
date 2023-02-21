@@ -1,45 +1,39 @@
-#![warn(clippy::all)]
+use lisp::display::location::Location;
 
-use lang::lexer::Lexer;
-use lang::parser::Parser;
-use lang::display::Location;
+use lisp::frontend::lexer::Lexer;
+use lisp::frontend::parser::{Err as PErr, Parser};
+
+use lisp::repl::Evaluator;
 
 fn main() {
-    // Read the source code from a file.
-    let path = "tests/sources/fib.la";
+    // Getting the source code
+    let path = "tests/sources/1.lisp";
     let source = std::fs::read_to_string(path).unwrap_or_else(|err| {
-        eprintln!("Failed to read file {}: {}", path, err);
+        eprintln!("Error: {}", err);
         std::process::exit(1);
     });
 
-    // Initialize the lexer and parser.
-    let mut parser = Parser::new(Lexer::new(&source));
-
-    // Parse the source code.
-    #[allow(unused)]
+    // Generating the AST
+    let lexer = Lexer::new(&source);
+    let mut parser = Parser::new(lexer);
     let ast = parser.parse().unwrap_or_else(|err| {
-        match err {
-            lang::parser::Err::LexerError(err) => {
-                let location = Location::new(path, &source, err.begin);
-                match err.value {
-                    lang::lexer::Err::IntegerParseError(err) => {
-                        eprintln!("Failed to parse integer at {}: {:?}", location, err);
-                        std::process::exit(1);
-                    }
-                    lang::lexer::Err::UnexpectedCharacter(err) => {
-                        eprintln!("Unexpected character at {}: {:?}", location, err);
-                        std::process::exit(1);
-                    }
-                }
-            }
-            lang::parser::Err::UnexpectedToken(token) => {
-                let location = Location::new(path, &source, token.begin);
-                eprintln!("Unexpected token at {}: {:?}", location, token.value);
-                std::process::exit(1);
-            }
-        }
+        let idx = match &err {
+            PErr::UnexpectedEndOfFile => source.len(),
+            PErr::LexerError(err) => err.begin,
+            PErr::UnexpectedToken(located) => located.begin,
+        };
+        let loc = Location::new(path, &source, idx);
+        eprintln!("{}: {}", loc, err);
+        std::process::exit(1);
     });
+    
+    // Printing the AST
+    println!("AST: {}", ast);
 
-    // Print the produced AST.
-    println!("{:#?}", ast);
+    // Evaluating the AST
+    let evaluator = Evaluator::new(ast);
+    let result = evaluator.eval();
+
+    // Printing the final result
+    println!("Result: {}", result);
 }

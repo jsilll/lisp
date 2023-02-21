@@ -1,10 +1,8 @@
-use std::fmt;
-
 /// Location in a source file.
 ///
 /// # Example
 /// ```
-/// use lang::display::Location;
+/// use lisp::display::location::Location;
 ///
 /// let loc = Location::new("path", "1 + 2", 3);
 /// assert_eq!(loc.path, "path");
@@ -34,7 +32,7 @@ impl<'i> Location<'i> {
     ///
     /// # Example
     /// ```
-    /// use lang::display::Location;
+    /// use lisp::display::location::Location;
     ///
     /// let loc = Location::new("path", "1 + 2", 3);
     /// assert_eq!(loc.path, "path");
@@ -52,13 +50,13 @@ impl<'i> Location<'i> {
     }
 }
 
-impl fmt::Display for Location<'_> {
+impl std::fmt::Display for Location<'_> {
     /// Display the location in a human-readable format.
     /// Additionally, the location is printed in a format that can be interpreted by an IDE.
     ///
     /// # Example
     /// ```
-    /// use lang::display::Location;
+    /// use lisp::display::location::Location;
     ///
     /// let loc = Location::new("path", "1 + 2", 3);
     /// assert_eq!(loc.to_string(), "path:1:4");
@@ -66,7 +64,7 @@ impl fmt::Display for Location<'_> {
     /// let loc = Location::new("path", "1 + 2\n3 + 4", 7);
     /// assert_eq!(loc.to_string(), "path:2:2");
     /// ```
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}:{}:{}", self.path, self.line, self.column)
     }
 }
@@ -134,10 +132,9 @@ mod tests {
         assert_eq!(loc.column, 6);
     }
 
-    /// Test the `Location` display.
-    /// This is a simple test to make sure the display format is correct such that it can be used by IDEs.
+    /// Test the `fmt` method.
     #[test]
-    fn test_location_display() {
+    fn test_fmt() {
         let loc = Location::new("path", "1 + 2", 3);
         assert_eq!(loc.to_string(), "path:1:4");
 
