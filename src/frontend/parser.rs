@@ -131,12 +131,6 @@ impl<'i> Parser<'i> {
                     Token::Integer(i) => {
                         list.push(Object::Integer(i));
                     }
-                    Token::Plus => {
-                        list.push(Object::Symbol("+"));
-                    }
-                    Token::Minus => {
-                        list.push(Object::Symbol("-"));
-                    }
                     Token::RParen => {
                         return Ok(Object::List(list));
                     }

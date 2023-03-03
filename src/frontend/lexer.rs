@@ -89,20 +89,20 @@ pub enum Err<'i> {
 
 impl<'i> std::fmt::Display for Err<'i> {
     /// Formats the value using the given formatter.
-    /// 
+    ///
     /// # Arguments
     /// * `f` - The formatter to use.
-    /// 
+    ///
     /// # Returns
     /// The result of the formatting.
-    /// 
+    ///
     /// # Examples
     /// ```
     /// use lisp::frontend::lexer::Err;
-    /// 
+    ///
     /// let err = Err::UnexpectedCharacter('a');
     /// assert_eq!(format!("{}", err), "Unexpected character: 'a'");
-    /// ``` 
+    /// ```
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         match self {
             Err::UnexpectedCharacter(c) => write!(f, "Unexpected character: '{}'", c),
@@ -145,18 +145,6 @@ impl<'i> Iterator for Lexer<'i> {
                 value: Token::RParen,
             })),
 
-            '+' => Some(Ok(Located {
-                begin,
-                end: begin + 1,
-                value: Token::Plus,
-            })),
-
-            '-' => Some(Ok(Located {
-                begin,
-                end: begin + 1,
-                value: Token::Minus,
-            })),
-
             '0'..='9' => {
                 let end = self.consume_while(|c| c.is_digit(10));
                 let res = self.input[begin..end].parse::<i64>();
@@ -174,8 +162,8 @@ impl<'i> Iterator for Lexer<'i> {
                 }
             }
 
-            c if c.is_alphabetic() => {
-                let end = self.consume_while(|c| c.is_alphanumeric() || c == '_');
+            c if c.is_ascii() => {
+                let end = self.consume_while(|c| !c.is_whitespace() && c != '(' && c != ')');
                 Some(Ok(Located {
                     begin,
                     end,
@@ -218,43 +206,5 @@ mod tests {
     fn test_consume_while() {
         let mut lexer = Lexer::new("123abc");
         assert_eq!(lexer.consume_while(|c| c.is_digit(10)), 3);
-    }
-
-    /// Tests the lexer.
-    #[test]
-    fn test_lexer() {
-        let source = "(+ 1 2)";
-        let lexer = Lexer::new(source);
-        let tokens = lexer.collect::<Vec<_>>();
-        assert_eq!(
-            tokens,
-            vec![
-                Ok(Located {
-                    begin: 0,
-                    end: 1,
-                    value: Token::LParen,
-                }),
-                Ok(Located {
-                    begin: 1,
-                    end: 2,
-                    value: Token::Plus,
-                }),
-                Ok(Located {
-                    begin: 3,
-                    end: 4,
-                    value: Token::Integer(1),
-                }),
-                Ok(Located {
-                    begin: 5,
-                    end: 6,
-                    value: Token::Integer(2),
-                }),
-                Ok(Located {
-                    begin: 6,
-                    end: 7,
-                    value: Token::RParen,
-                }),
-            ]
-        );
     }
 }

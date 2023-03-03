@@ -5,12 +5,6 @@ pub enum Token<'i> {
     LParen,
     /// A right parenthesis.
     RParen,
-
-    /// A plus sign.
-    Plus,
-    /// A minus sign.
-    Minus,
-
     /// An integer.
     Integer(i64),
     /// A symbol.
@@ -30,13 +24,11 @@ impl<'i> std::fmt::Display for Token<'i> {
     /// ```
     /// use lisp::frontend::token::Token;
     /// 
-    /// let token = Token::Plus;
-    /// assert_eq!(format!("{}", token), "+");
+    /// let token = Token::LParen;
+    /// assert_eq!(format!("{}", token), "(");
     /// ```
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         match self {
-            Token::Plus => write!(f, "+"),
-            Token::Minus => write!(f, "-"),
             Token::LParen => write!(f, "("),
             Token::RParen => write!(f, ")"),
             Token::Integer(i) => write!(f, "{}", i),
@@ -52,12 +44,6 @@ mod tests {
     /// Tests the `fmt` method.
     #[test]
     fn test_fmt() {
-        let token = Token::Plus;
-        assert_eq!(format!("{}", token), "+");
-
-        let token = Token::Minus;
-        assert_eq!(format!("{}", token), "-");
-
         let token = Token::LParen;
         assert_eq!(format!("{}", token), "(");
 
