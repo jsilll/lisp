@@ -1,7 +1,5 @@
 #pragma once
 
-#include <iostream>
-
 #include "Position.hpp"
 
 namespace lisp
@@ -16,7 +14,8 @@ namespace lisp
             RightParen,
             Quote,
             Symbol,
-            Number,
+            Integer,
+            Float,
             String,
             Eof,
             Invalid,

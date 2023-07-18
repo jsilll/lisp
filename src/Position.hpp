@@ -9,6 +9,9 @@ namespace lisp
         /// @brief Advances the position by one character.
         void Advance(const char c) noexcept;
 
+        /// @brief Advances the position by a newline.
+        void AdvanceNewline() noexcept;
+
         /// @brief Converts the position to a string.
         std::string ToString() const noexcept;
 

@@ -74,6 +74,12 @@ namespace lisp
         ++m_position.column;
     }
 
+    void Lexer::AdvanceNewline() noexcept
+    {
+        ++m_index;
+        m_position.AdvanceNewline();
+    }
+
     void Lexer::SkipWhitespace() noexcept
     {
         while (m_index < m_source.size() and std::isspace(m_source[m_index]))
@@ -86,7 +92,7 @@ namespace lisp
     {
         while (m_index < m_source.size() and m_source[m_index] != '\n')
         {
-            m_position.Advance(m_source[m_index++]);
+            AdvanceChar();
         }
     }
 
@@ -103,10 +109,23 @@ namespace lisp
         const auto pos = m_position;
         while (m_index < m_source.size() and std::isdigit(m_source[m_index]))
         {
-            m_position.Advance(m_source[m_index++]);
+            AdvanceChar();
         }
-        const auto lex = std::string_view(&m_source[start], m_index - start);
-        return Token{Token::Type::Number, pos, lex};
+        if (m_index < m_source.size() and m_source[m_index] == '.')
+        {
+            AdvanceChar();
+            while (m_index < m_source.size() and std::isdigit(m_source[m_index]))
+            {
+                AdvanceChar();
+            }
+            const auto lex = std::string_view(&m_source[start], m_index - start);
+            return Token{Token::Type::Float, pos, lex};
+        }
+        else
+        {
+            const auto lex = std::string_view(&m_source[start], m_index - start);
+            return Token{Token::Type::Integer, pos, lex};
+        }
     }
 
     Token Lexer::ScanSymbol() noexcept
@@ -115,7 +134,7 @@ namespace lisp
         const auto pos = m_position;
         while (m_index < m_source.size() and !IsPunctuation(m_source[m_index]) and !std::isspace(m_source[m_index]))
         {
-            m_position.Advance(m_source[m_index++]);
+            AdvanceChar();
         }
         const auto lex = std::string_view(&m_source[start], m_index - start);
         return lex.size() == 0 ? Token{Token::Type::Invalid, pos, lex} : Token{Token::Type::Symbol, pos, lex};
@@ -128,10 +147,25 @@ namespace lisp
         const auto pos = m_position;
         while (m_index < m_source.size() and m_source[m_index] != '"')
         {
-            m_position.Advance(m_source[m_index++]);
+            if (m_source[m_index] == '\n')
+            {
+                AdvanceNewline();
+                return Token{Token::Type::Invalid, pos, "\n"};
+            }
+            else
+            {
+                AdvanceChar();
+            }
         }
-        const auto lex = std::string_view(&m_source[start], m_index - start);
-        AdvanceChar();
-        return Token{Token::Type::String, pos, lex};
+        if (m_source[m_index] != '"')
+        {
+            return Token{Token::Type::Invalid, pos, ""};
+        }
+        else
+        {
+            const auto lex = std::string_view(&m_source[start], m_index - start);
+            AdvanceChar();
+            return Token{Token::Type::String, pos, lex};
+        }
     }
 } // namespace lisp

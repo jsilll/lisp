@@ -14,8 +14,10 @@ namespace lisp
             return "Token{Type::Quote, " + position.ToString() + "}";
         case Type::Symbol:
             return "Token{Type::Symbol, " + position.ToString() + ", '" + std::string(lex) + "'}";
-        case Type::Number:
-            return "Token{Type::Number, " + position.ToString() + ", '" + std::string(lex) + "'}";
+        case Type::Integer:
+            return "Token{Type::Integer, " + position.ToString() + ", '" + std::string(lex) + "'}";
+        case Type::Float:
+            return "Token{Type::Float, " + position.ToString() + ", '" + std::string(lex) + "'}";
         case Type::String:
             return "Token{Type::String, " + position.ToString() + ", '" + std::string(lex) + "'}";
         case Type::Eof:

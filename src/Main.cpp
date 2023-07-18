@@ -1,4 +1,5 @@
-#include "Lexer.hpp"
+#include <iostream>
+
 #include "Parser.hpp"
 
 int main()
@@ -17,6 +18,7 @@ int main()
         try
         {
             auto value = parser.Parse();
+            std::cout << value.ToString() << '\n';
             const auto result = value.Eval(env);
         }
         catch (const std::exception &e)

@@ -19,8 +19,11 @@ namespace lisp
         /// @brief Parses a list.
         Value ParseList();
 
-        /// @brief Parses a number.
-        Value ParseNumber(const Token &token);
+        /// @brief Parses an integer.
+        Value ParseInteger(const Token &token);
+
+        /// @brief Parses a float.
+        Value ParseFloat(const Token &token);
 
         Lexer m_lexer;
     };

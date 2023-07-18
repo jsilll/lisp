@@ -1,8 +1,6 @@
 #pragma once
 
 #include <vector>
-#include <algorithm>
-#include <stdexcept>
 
 #include "Type.hpp"
 #include "Environment.hpp"
@@ -50,10 +48,13 @@ namespace lisp
         Value(std::vector<Value> args, Value body, const Environment &scope) noexcept;
 
         /// @brief Construct a quote value.
-        Value Quote() const noexcept;
+        [[nodiscard]] Value Quote() const noexcept;
 
         /// @brief Get all the atoms in this value.
         [[nodiscard]] std::vector<std::string> GetAtoms() const noexcept;
+
+        /// @brief Get the string representation of this value.
+        [[nodiscard]] std::string ToString() const noexcept;
 
         /// @brief Evaluate this value.
         Value Eval(Environment &env);
@@ -62,6 +63,9 @@ namespace lisp
         Value Apply(const std::vector<Value> args, Environment &env);
 
     private:
+        /// @brief Get the string representation of this value when it is a list.
+        [[nodiscard]] std::string ToStringList() const noexcept;
+
         Type m_type;
         union
         {

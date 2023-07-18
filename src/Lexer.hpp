@@ -26,6 +26,9 @@ namespace lisp
         /// @brief Advances a character.
         void AdvanceChar() noexcept;
 
+        /// @brief Advances a newline character.
+        void AdvanceNewline() noexcept;
+
         /// @brief Skips whitespace.
         void SkipWhitespace() noexcept;
 

@@ -15,6 +15,12 @@ namespace lisp
         }
     }
 
+    void Position::AdvanceNewline() noexcept
+    {
+        ++line;
+        column = 1;
+    }
+
     std::string Position::ToString() const noexcept
     {
         return std::to_string(line) + ":" + std::to_string(column);

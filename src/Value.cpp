@@ -1,5 +1,8 @@
 #include "Value.hpp"
 
+#include <algorithm>
+#include <stdexcept>
+
 namespace lisp
 {
     Value::Value(std::string s, Type t)
@@ -61,14 +64,59 @@ namespace lisp
         }
     }
 
+    std::string Value::ToString() const noexcept
+    {
+        switch (m_type)
+        {
+        case Type::Unit:
+            return "unit";
+        case Type::Int:
+            return std::to_string(m_stack_data.i) + " : int";
+        case Type::Float:
+            return std::to_string(m_stack_data.f) + " : float";
+        case Type::String:
+            return "\"" + m_string_data + "\" : str";
+        case Type::Atom:
+            return m_string_data + " : atom";
+        case Type::Builtin:
+            return "<builtin>";
+        case Type::Lambda:
+            return "<lambda>";
+        case Type::Quote:
+            return "'" + m_list_data[0].ToString();
+        case Type::List:
+            return "(" + ToStringList() + ")";
+        }
+    }
+
     Value Value::Eval([[maybe_unused]] Environment &env)
     {
-        return Value();
+        // TODO: Implement
+        return {};
     }
 
     Value Value::Apply([[maybe_unused]] const std::vector<Value> args, [[maybe_unused]] Environment &env)
     {
-        return Value();
+        // TODO: Implement
+        return {};
+    }
+
+    std::string Value::ToStringList() const noexcept
+    {
+        if (m_list_data.empty())
+        {
+            return "";
+        }
+        else
+        {
+            std::string s;
+            for (const auto &v : m_list_data)
+            {
+                s += v.ToString() + " ";
+            }
+            s.pop_back();
+            return s;
+        }
     }
 
 } // namespace lisp
