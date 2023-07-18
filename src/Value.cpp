@@ -91,8 +91,8 @@ namespace lisp
 
     Value Value::Eval([[maybe_unused]] Environment &env)
     {
-        // TODO: Implement
-        return {};
+        // TODO: implement
+        return *this;
     }
 
     Value Value::Apply([[maybe_unused]] const std::vector<Value> args, [[maybe_unused]] Environment &env)

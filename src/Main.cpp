@@ -18,8 +18,8 @@ int main()
         try
         {
             auto value = parser.Parse();
-            std::cout << value.ToString() << '\n';
             const auto result = value.Eval(env);
+            std::cout << result.ToString() << '\n';
         }
         catch (const std::exception &e)
         {
