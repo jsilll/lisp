@@ -90,7 +90,7 @@ namespace lisp
         }
     }
 
-    Token Lexer::ScanSingleChar(Token::Type type, std::string_view lex) noexcept
+    Token Lexer::ScanSingleChar(const Token::Type type, const std::string_view lex) noexcept
     {
         const auto pos = m_position;
         AdvanceChar();

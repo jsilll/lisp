@@ -20,6 +20,11 @@ namespace lisp
         }
     }
 
+    void Environment::SetParent(Environment &parent) noexcept
+    {
+        m_parent = &parent;
+    }
+
     void Environment::Combine(const Environment &other) noexcept
     {
         for (const auto &[name, value] : other.m_definitions)
