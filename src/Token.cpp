@@ -1,4 +1,4 @@
-#include "Token.hpp"
+#include <lisp/Token.hpp>
 
 namespace lisp
 {

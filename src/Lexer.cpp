@@ -1,4 +1,4 @@
-#include "Lexer.hpp"
+#include <lisp/Lexer.hpp>
 
 namespace lisp
 {

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Position.hpp"
+#include <lisp/Position.hpp>
 
 namespace lisp
 {

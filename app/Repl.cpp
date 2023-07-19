@@ -1,14 +1,16 @@
 #include <iostream>
 
-#include "Parser.hpp"
+#include <lisp/Parser.hpp>
+#include <lisp/Standard.hpp>
 
 int main()
 {
     lisp::Environment env;
+    lisp::std::Register(env);
 
     while (true)
     {
-        std::cout << "> " << std::flush;
+        std::cout << ">>> " << std::flush;
 
         std::string source;
         std::getline(std::cin, source);

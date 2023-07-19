@@ -1,6 +1,6 @@
-#include "Environment.hpp"
+#include <lisp/Environment.hpp>
 
-#include "Value.hpp"
+#include <lisp/Value.hpp>
 
 namespace lisp
 {
@@ -20,7 +20,7 @@ namespace lisp
         }
     }
 
-    void Environment::SetParent(Environment &parent) noexcept
+    void Environment::SetParent(const Environment &parent) noexcept
     {
         m_parent = &parent;
     }

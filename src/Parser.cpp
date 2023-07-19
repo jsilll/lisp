@@ -1,9 +1,23 @@
-#include "Parser.hpp"
+#include <lisp/Parser.hpp>
 
 #include <stdexcept>
+
 namespace lisp
 {
     Value Parser::Parse()
+    {
+        const auto value = ParseValue();
+        if (m_lexer.Next().type != Token::Type::Eof)
+        {
+            throw std::runtime_error("Expected end of input");
+        }
+        else
+        {
+            return value;
+        }
+    }
+
+    Value Parser::ParseValue()
     {
         while (true)
         {
@@ -15,7 +29,7 @@ namespace lisp
             case Token::Type::RightParen:
                 throw std::runtime_error("Unexpected ')'");
             case Token::Type::Quote:
-                return Parse().Quote();
+                return ParseValue().Quote();
             case Token::Type::Symbol:
                 return Value(std::string(token.lex), Type::Atom);
             case Token::Type::Integer:
@@ -50,7 +64,7 @@ namespace lisp
             default:
                 do
                 {
-                    values.emplace_back(Parse());
+                    values.emplace_back(ParseValue());
                 } while (m_lexer.Peek().type != Token::Type::RightParen and m_lexer.Peek().type != Token::Type::Eof);
                 if (m_lexer.Peek().type == Token::Type::Eof)
                 {

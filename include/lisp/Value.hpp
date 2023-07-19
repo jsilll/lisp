@@ -2,8 +2,8 @@
 
 #include <vector>
 
-#include "Type.hpp"
-#include "Environment.hpp"
+#include <lisp/Type.hpp>
+#include <lisp/Environment.hpp>
 
 namespace lisp
 {
@@ -11,7 +11,7 @@ namespace lisp
     class Value;
 
     /// @brief A builtin function.
-    typedef Value (*Builtin)(const std::vector<Value> &args, Environment &env);
+    typedef Value (*Builtin)(::std::vector<Value> args, const Environment &env);
 
     /// @brief A value in the lisp language.
     class Value final
@@ -32,39 +32,39 @@ namespace lisp
         }
 
         /// @brief Construct a list value.
-        explicit Value(std::vector<Value> l) noexcept : m_type(Type::List),
-                                                        m_list_data(std::move(l)) {}
+        explicit Value(::std::vector<Value> l) noexcept : m_type(Type::List),
+                                                        m_list_data(::std::move(l)) {}
 
         /// @brief Construct a string or an atom value.
-        Value(std::string s, Type t);
+        Value(::std::string s, Type t);
 
         /// @brief Construct a builtin function.
-        Value(std::string s, Builtin b) noexcept : m_type(Type::Builtin), m_string_data(std::move(s))
+        Value(::std::string s, Builtin b) noexcept : m_type(Type::Builtin), m_string_data(::std::move(s))
         {
             m_stack_data.b = b;
         }
 
         /// @brief Construct a lambda value.
-        Value(std::vector<Value> args, Value body, const Environment &scope) noexcept;
+        Value(::std::vector<Value> args, Value body, const Environment &scope) noexcept;
 
         /// @brief Construct a quote value.
         [[nodiscard]] Value Quote() const noexcept;
 
         /// @brief Get all the atoms in this value.
-        [[nodiscard]] std::vector<std::string> GetAtoms() const noexcept;
+        [[nodiscard]] ::std::vector<::std::string> GetAtoms() const noexcept;
 
         /// @brief Get the string representation of this value.
-        [[nodiscard]] std::string ToString() const noexcept;
+        [[nodiscard]] ::std::string ToString() const noexcept;
 
         /// @brief Evaluate this value.
-        Value Eval(Environment &env);
+        Value Eval(const Environment &env) const;
 
         /// @brief Apply this value to a list of arguments.
-        Value Apply(const std::vector<Value> args, Environment &env);
+        Value Apply(::std::vector<Value> args, const Environment &env);
 
     private:
         /// @brief Get the string representation of this value when it is a list.
-        [[nodiscard]] std::string ToStringList() const noexcept;
+        [[nodiscard]] ::std::string ToStringList() const noexcept;
 
         Type m_type;
         union
@@ -73,8 +73,8 @@ namespace lisp
             float f;
             Builtin b;
         } m_stack_data{};
-        std::string m_string_data{};
-        std::vector<Value> m_list_data{};
+        ::std::string m_string_data{};
+        ::std::vector<Value> m_list_data{};
         Environment m_lambda_scope{};
     };
 } // namespace lisp

@@ -18,6 +18,10 @@ endif()
 
 file(GLOB SOURCES src/*.cpp)
 
-file(GLOB HEADERS src/*.hpp)
+file(GLOB HEADERS include/*.hpp)
 
-add_executable(lisp ${SOURCES} ${HEADERS})
+add_library(lisp STATIC ${SOURCES} ${HEADERS})
+
+target_include_directories(lisp PUBLIC include)
+
+add_subdirectory(app)
