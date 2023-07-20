@@ -64,7 +64,7 @@ namespace lisp
             default:
                 do
                 {
-                    values.emplace_back(ParseValue());
+                    values.push_back(ParseValue());
                 } while (m_lexer.Peek().type != Token::Type::RightParen and m_lexer.Peek().type != Token::Type::Eof);
                 if (m_lexer.Peek().type == Token::Type::Eof)
                 {

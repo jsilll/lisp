@@ -1,5 +1,6 @@
 #include <lisp/Value.hpp>
 
+#include <cstdint>
 #include <algorithm>
 #include <stdexcept>
 
@@ -81,7 +82,7 @@ namespace lisp
         case Type::Lambda:
             return "<lambda>";
         case Type::Builtin:
-            return "<builtin-function>";
+            return "<" + m_string_data + " at " + ::std::to_string(reinterpret_cast<std::uintptr_t>(m_stack_data.b)) + ">";
         case Type::Quote:
             return "'" + m_list_data[0].ToString();
         case Type::List:
@@ -119,7 +120,7 @@ namespace lisp
                 std::vector<Value> args(m_list_data.begin() + 1, m_list_data.end());
                 if (function.m_type == Type::Builtin)
                 {
-                    return function.Apply(args, env);
+                    return function.Apply(std::move(args), env);
                 }
                 else if (function.m_type == Type::Lambda)
                 {
@@ -127,7 +128,7 @@ namespace lisp
                     {
                         args[i] = args[i].Eval(env);
                     }
-                    return function.Apply(args, env);
+                    return function.Apply(std::move(args), env);
                 }
                 else
                 {

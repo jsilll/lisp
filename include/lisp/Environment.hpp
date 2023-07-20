@@ -13,7 +13,10 @@ namespace lisp
     public:
         [[nodiscard]] std::optional<Value> Get(const std::string &name) const noexcept;
 
-        void SetParent(const Environment &parent) noexcept;
+        void SetParent(const Environment &parent) noexcept
+        {
+            m_parent = &parent;
+        }
 
         void Combine(const Environment &other) noexcept;
 

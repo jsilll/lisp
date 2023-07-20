@@ -36,7 +36,7 @@ namespace lisp
         void SkipLine() noexcept;
 
         /// @brief Scans a single character.
-        Token ScanSingleChar(Token::Type type, std::string_view lex) noexcept;
+        Token ScanSingleChar(Token::Type type, const std::string_view& lex) noexcept;
 
         /// @brief Scans a number.
         Token ScanNumber() noexcept;

@@ -31,21 +31,51 @@ namespace lisp
             m_stack_data.f = f;
         }
 
-        /// @brief Construct a list value.
-        explicit Value(::std::vector<Value> l) noexcept : m_type(Type::List),
-                                                        m_list_data(::std::move(l)) {}
-
-        /// @brief Construct a string or an atom value.
-        Value(::std::string s, Type t);
-
         /// @brief Construct a builtin function.
         Value(::std::string s, Builtin b) noexcept : m_type(Type::Builtin), m_string_data(::std::move(s))
         {
             m_stack_data.b = b;
         }
 
+        /// @brief Construct a string or an atom value.
+        Value(::std::string s, Type t);
+
+        /// @brief Construct a list value.
+        explicit Value(::std::vector<Value> l) noexcept : m_type(Type::List),
+                                                          m_list_data(::std::move(l)) {}
+
         /// @brief Construct a lambda value.
         Value(::std::vector<Value> args, Value body, const Environment &scope) noexcept;
+
+        /// @brief Get the type of this value.
+        [[nodiscard]] auto type() const noexcept
+        {
+            return m_type;
+        }
+
+        /// @brief Get the stack data of this value.
+        [[nodiscard]] const auto &stack_data() const noexcept
+        {
+            return m_stack_data;
+        }
+
+        /// @brief Get the string data of this value.
+        [[nodiscard]] const auto &string_data() const noexcept
+        {
+            return m_string_data;
+        }
+
+        /// @brief Get the list data of this value.
+        [[nodiscard]] const auto &list_data() const noexcept
+        {
+            return m_list_data;
+        }
+
+        /// @brief Get the lambda scope of this value.
+        [[nodiscard]] const auto &lambda_scope() const noexcept
+        {
+            return m_lambda_scope;
+        }
 
         /// @brief Construct a quote value.
         [[nodiscard]] Value Quote() const noexcept;
