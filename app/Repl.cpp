@@ -3,13 +3,12 @@
 #include <lisp/Parser.hpp>
 #include <lisp/Standard.hpp>
 
-int main()
-{
+int
+main() {
     lisp::Environment env;
     lisp::std::Register(env);
 
-    while (true)
-    {
+    while (true) {
         std::cout << ">>> " << std::flush;
 
         std::string source;
@@ -17,14 +16,11 @@ int main()
         lisp::Lexer lexer(std::move(source));
         lisp::Parser parser(std::move(lexer));
 
-        try
-        {
+        try {
             auto value = parser.Parse();
             const auto result = value.Eval(env);
             std::cout << result.ToString() << '\n';
-        }
-        catch (const std::exception &e)
-        {
+        } catch (const std::exception &e) {
             std::cerr << e.what() << '\n';
         }
     }
