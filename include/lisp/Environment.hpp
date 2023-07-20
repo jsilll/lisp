@@ -11,7 +11,7 @@ namespace lisp
     class Environment final
     {
     public:
-        [[nodiscard]] std::optional<Value> Get(const std::string &name) const noexcept;
+        [[nodiscard]] ::std::optional<Value> Get(const ::std::string &name) const noexcept;
 
         void SetParent(const Environment &parent) noexcept
         {
@@ -20,10 +20,10 @@ namespace lisp
 
         void Combine(const Environment &other) noexcept;
 
-        void Set(const std::string &name, const Value &value) noexcept;
+        void Set(::std::string name, Value value) noexcept;
 
     private:
         const Environment *m_parent{nullptr};
-        std::unordered_map<std::string, Value> m_definitions;
+        ::std::unordered_map<::std::string, Value> m_definitions;
     };
 } // namespace lisp

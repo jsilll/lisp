@@ -23,7 +23,7 @@ namespace lisp
         {
             if (const auto bind = scope.Get(atom))
             {
-                m_lambda_scope.Set(atom, *bind);
+                m_lambda_scope.Set(atom, std::move(*bind));
             }
         }
         m_list_data.emplace_back(std::move(args));

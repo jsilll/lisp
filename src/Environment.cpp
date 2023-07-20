@@ -28,8 +28,8 @@ namespace lisp
         }
     }
 
-    void Environment::Set(const std::string &name, const Value &value) noexcept
+    void Environment::Set(const std::string name, const Value value) noexcept
     {
-        m_definitions.insert_or_assign(name, value);
+        m_definitions.insert_or_assign(std::move(name), std::move(value));
     }
 } // namespace lisp

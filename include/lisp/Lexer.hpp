@@ -11,7 +11,7 @@ namespace lisp
     {
     public:
         /// @brief Constructs a new lexer.
-        Lexer(std::string source) noexcept : m_source(std::move(source)) {}
+        Lexer(::std::string source) noexcept : m_source(::std::move(source)) {}
 
         /// @brief Gets the next token.
         Token Next() noexcept;
@@ -36,7 +36,7 @@ namespace lisp
         void SkipLine() noexcept;
 
         /// @brief Scans a single character.
-        Token ScanSingleChar(Token::Type type, const std::string_view& lex) noexcept;
+        Token ScanSingleChar(Token::Type type, const ::std::string_view& lex) noexcept;
 
         /// @brief Scans a number.
         Token ScanNumber() noexcept;
@@ -48,8 +48,8 @@ namespace lisp
         Token ScanString() noexcept;
 
         Position m_position;
-        std::string m_source;
-        std::size_t m_index{0};
-        std::optional<Token> m_peek;
+        ::std::string m_source;
+        ::std::size_t m_index{0};
+        ::std::optional<Token> m_peek;
     };
 } // namespace lisp

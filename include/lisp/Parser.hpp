@@ -10,7 +10,7 @@ namespace lisp
     {
     public:
         /// @brief Constructs a parser from a source string.
-        explicit Parser(Lexer lexer) noexcept : m_lexer(std::move(lexer)) {}
+        explicit Parser(Lexer lexer) noexcept : m_lexer(::std::move(lexer)) {}
 
         /// @brief Parses a source string.
         Value Parse();

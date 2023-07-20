@@ -23,9 +23,9 @@ namespace lisp
 
         Type type;
         Position position;
-        std::string_view lex;
+        ::std::string_view lex;
 
         /// @brief Convert a token to a string.
-        std::string ToString() const noexcept;
+        ::std::string ToString() const noexcept;
     };
 } // namespace lisp

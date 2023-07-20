@@ -13,12 +13,12 @@ namespace lisp
         void AdvanceNewline() noexcept;
 
         /// @brief Converts the position to a string.
-        std::string ToString() const noexcept;
+        ::std::string ToString() const noexcept;
 
         /// @brief Converts the position to a string with a filename.
-        std::string ToString(const std::string &filename) const noexcept;
+        ::std::string ToString(const ::std::string &filename) const noexcept;
 
-        std::size_t line{1};
-        std::size_t column{1};
+        ::std::size_t line{1};
+        ::std::size_t column{1};
     };
 } // namespace lisp

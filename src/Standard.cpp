@@ -1,9 +1,12 @@
 #include <lisp/Standard.hpp>
 
+#include <iostream>
 #include <stdexcept>
 #include <algorithm>
 
 #include <lisp/Value.hpp>
+#include <lisp/Lexer.hpp>
+#include <lisp/Parser.hpp>
 
 namespace lisp::std
 {
@@ -195,10 +198,11 @@ namespace lisp::std
             }
             else
             {
-                auto &name = args[0].list_data()[0].string_data();
+                const auto &name = args[0].list_data()[0].string_data();
                 auto value = args[0].list_data()[1].Eval(env);
-                auto new_env = env;
-                new_env.Set(name, value);
+                Environment new_env;
+                new_env.SetParent(env);
+                new_env.Set(::std::move(name), ::std::move(value));
                 return args[1].Eval(new_env);
             }
         }
@@ -906,6 +910,74 @@ namespace lisp::std
         }
     }
 
+    static Value Print(::std::vector<Value> args, const Environment &env)
+    {
+        EvalArgs(args, env);
+
+        if (args.size() != 1)
+        {
+            throw ::std::runtime_error("Number of arguments must be 2");
+        }
+        else if (args[0].type() != Type::String)
+        {
+            throw ::std::runtime_error("Argument must be a string");
+        }
+        else
+        {
+            ::std::cout << args[0].string_data() << "\n";
+            return Value();
+        }
+    }
+
+    static Value Input(::std::vector<Value> args, [[maybe_unused]] const Environment &env)
+    {
+        if (args.size() != 0)
+        {
+            throw ::std::runtime_error("Number of arguments must be 0");
+        }
+        else
+        {
+            ::std::string input;
+            ::std::getline(::std::cin, input);
+            return Value(::std::move(input), Type::String);
+        }
+    }
+
+    static Value Parse(::std::vector<Value> args, const Environment &env)
+    {
+        EvalArgs(args, env);
+
+        if (args.size() != 1)
+        {
+            throw ::std::runtime_error("Number of arguments must be 1");
+        }
+        else
+        {
+            auto lexer = Lexer(args[0].string_data());
+            auto parser = Parser(::std::move(lexer));
+            auto result = parser.Parse();
+            return result;
+        }
+    }
+
+    static Value Eval(::std::vector<Value> args, const Environment &env)
+    {
+        EvalArgs(args, env);
+
+        if (args.size() != 1)
+        {
+            throw ::std::runtime_error("Number of arguments must be 1");
+        }
+        else if (args[0].type() != Type::List)
+        {
+            throw ::std::runtime_error("Argument must be a list");
+        }
+        else
+        {
+            return args[0].Eval(env);
+        }
+    }
+
     void Register(Environment &env) noexcept
     {
         // Base
@@ -954,5 +1026,13 @@ namespace lisp::std
 
         // Iteration
         env.Set("range", Value("range", Range));
+
+        // Stdio
+        env.Set("print", Value("print", Print));
+        env.Set("input", Value("input", Input));
+
+        // Meta Circular
+        env.Set("parse", Value("parse", Parse));
+        env.Set("eval", Value("eval", Eval));
     }
 } // namespace lisp::std
